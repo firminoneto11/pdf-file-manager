@@ -51,7 +51,7 @@ def main():
 
             progress_bar['value'] = progress_bar['value'] + 1
             status_do_carregamento.config(text=f"{progress_bar['value']}%")
-            progress_bar.update_idletasks()
+            progress_bar.update()
             sleep(0.020)
 
         # Após a execução da função que realiza o carregamento da barra de progresso, os widgets são removidos e o menu

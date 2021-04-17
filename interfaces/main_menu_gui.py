@@ -2,6 +2,7 @@
 A cor '#29274C' está fora da paleta de cores, mas é um tom de azul que caiu bem com a tonalidade do projeto.
 """
 from tkinter import *
+from interfaces.concatenar_area import ConcatenarGui
 
 
 class MenuInicial:
@@ -19,7 +20,8 @@ class MenuInicial:
                                        bg='#624CAB', fg='#eeeeee')
 
         self.concatenar = Button(root, text='Concatenar', width=20, bg='#29274C', fg='#eeeeee', relief='flat',
-                                 font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF')
+                                 font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF',
+                                 command=self.__concatenar)
         self.separar = Button(root, text='Separar', width=20, bg='#29274C', fg='#eeeeee', relief='flat',
                               font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF')
 
@@ -59,3 +61,17 @@ class MenuInicial:
 
     def __3_hover_out(self, event):
         self.sair.config(bg='#29274C')
+
+    def __concatenar(self):
+        """
+        Esse método inicializa a classe ConcatenarGui e seus widgets.
+        :return: None
+        """
+        # Removendo os widgets antigos
+        self.status_do_sistema.destroy()
+        self.concatenar.destroy()
+        self.separar.destroy()
+        self.sair.destroy()
+
+        # Inicializando a classe
+        ConcatenarGui(root=self.root)
