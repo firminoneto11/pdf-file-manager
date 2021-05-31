@@ -74,4 +74,4 @@ class MenuInicial:
         self.sair.destroy()
 
         # Inicializando a classe
-        ConcatenarGui(root=self.root)
+        ConcatenarGui(root=self.root, menu_inicial=self)

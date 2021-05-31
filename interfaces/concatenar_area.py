@@ -21,9 +21,10 @@ class ConcatenarGui:
     conteudo_sair = {'text': 'Voltar ao menu principal', 'font': ('Helvetica', 12), 'width': 25, 'bg': '#29274C',
                      'fg': 'white', 'relief': FLAT}
 
-    def __init__(self, root):
-        # Salvando a janela principal em um atributo de instância
+    def __init__(self, root, menu_inicial):
+        # Salvando a janela principal e o menu inicial em um atributo de instância
         self.root = root
+        self.menu_inicial = menu_inicial
 
         # Criando os widgets
         self.status_do_sys = Label(self.root, **ConcatenarGui.conteudo_status_do_sys)
@@ -38,7 +39,7 @@ class ConcatenarGui:
         self.concatenar = Button(self.frame_dos_botoes, **ConcatenarGui.conteudo_concatenar)
         self.add_arquivo = Button(self.frame_dos_botoes, **ConcatenarGui.conteudo_add)
         self.del_arquivo = Button(self.frame_dos_botoes, **ConcatenarGui.conteudo_del)
-        self.sair = Button(self.frame_dos_botoes, **ConcatenarGui.conteudo_sair)
+        self.sair = Button(self.frame_dos_botoes, **ConcatenarGui.conteudo_sair, command=self.__sair)
 
         # Inserindo os widgets na janela principal
         self.status_do_sys.pack(pady=30)
@@ -53,3 +54,13 @@ class ConcatenarGui:
         self.add_arquivo.grid(row=0, column=1, padx=3)
         self.del_arquivo.grid(row=0, column=2, padx=3)
         self.sair.grid(row=1, column=1, pady=10)
+
+    def __sair(self):
+        # Tirando os widgets antigos
+        self.status_do_sys.destroy()
+        self.label_da_dica.destroy()
+        self.listbox_frame.destroy()
+        self.frame_dos_botoes.destroy()
+
+        # Voltando ao menu inicial
+        self.menu_inicial.__init__(root=self.root)
