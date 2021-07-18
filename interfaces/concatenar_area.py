@@ -1,5 +1,9 @@
 from tkinter import *
 from tkinter import filedialog
+from functions.geometria_centralizada import centralizar_janela
+from tkinter import messagebox
+from engine.concat import Merger
+from os import listdir
 
 
 class ConcatenarGui:
@@ -9,7 +13,7 @@ class ConcatenarGui:
     # Atributos das labels e da listbox
     conteudo_status_do_sys = {'text': 'Concatenação', 'font': ('Helvetica', 18), 'bg': '#624CAB', 'fg': '#eeeeee'}
     conteudo_pdf_list = {'bg': '#758ECD', 'width': 125, 'fg': '#eeeeee', 'relief': RIDGE, 'borderwidth': 3,
-                         'font': ('Helvetica', 12)}
+                         'font': ('Helvetica', 14)}
     conteudo_label_da_dica = {'text': 'Insira arquivos no formato PDF na lista abaixo para realizar a concatenação.',
                               'font': ('Helvetica', 14), 'bg': '#624CAB', 'fg': '#eeeeee'}
 
@@ -38,9 +42,9 @@ class ConcatenarGui:
         self.scroll.config(command=self.pdf_list.yview)
 
         self.frame_dos_botoes = Frame(self.root, bg='#624CAB')
-        self.concatenar = Button(self.frame_dos_botoes, **self.conteudo_concatenar)
-        self.add_arquivo = Button(self.frame_dos_botoes, **self.conteudo_add, command=self.adicionar_arquivo)
-        self.del_arquivo = Button(self.frame_dos_botoes, **self.conteudo_del, command=self.deletar_arquivo)
+        self.concatenar = Button(self.frame_dos_botoes, **self.conteudo_concatenar, command=self.__concatenar)
+        self.add_arquivo = Button(self.frame_dos_botoes, **self.conteudo_add, command=self.__adicionar_arquivo)
+        self.del_arquivo = Button(self.frame_dos_botoes, **self.conteudo_del, command=self.__deletar_arquivo)
         self.sair = Button(self.frame_dos_botoes, **self.conteudo_sair, command=self.__sair)
 
         # Inserindo os widgets na janela principal
@@ -70,18 +74,35 @@ class ConcatenarGui:
         # Voltando ao menu inicial
         self.menu_inicial.__init__(root=self.root)
 
-    def __alter_state(self, event):
+    def __alter_state(self, _event):
+        """
+        Esse método servirá como uma função callback para o evento 'ListboxSelect'. Toda vez que o evento ocorrer, esse
+        método é acionado, alterando o estado do botão 'Remover arquivo', sempre garantindo que ele está disponível ape
+        nas quando um elemento for selecionado.
+        :param _event: ListboxSelect event
+        :return: None
+        """
         if self.pdf_list.size() > 0:
             self.del_arquivo.config(state=NORMAL)
         else:
             self.del_arquivo.config(state=DISABLED)
 
+    def __checa_tamanho(self):
+        """
+        Esse método controla o estado do botão 'concatenar', baseado na quantidade de elementos que estão atualmente na
+        lista, sempre garantindo que ele estará disponível quando houver 2 ou mais elementos à serem concatenados.
+        :return: None
+        """
         if self.pdf_list.size() >= 2:
             self.concatenar.config(state=NORMAL)
         else:
             self.concatenar.config(state=DISABLED)
 
-    def adicionar_arquivo(self):
+    def __adicionar_arquivo(self):
+        """
+        Esse método irá adicionar na lista um novo arquivo no formato '.pdf'
+        :return: None
+        """
         pdf_file = filedialog.askopenfilename(
             initialdir="C:\\",
             title="Escolha um arquivo PDF",
@@ -90,11 +111,99 @@ class ConcatenarGui:
         if len(pdf_file) != 0:
             self.pdf_list.insert(END, pdf_file)
 
-        if self.pdf_list.size() >= 2:
-            self.concatenar.config(state=NORMAL)
-        else:
-            self.concatenar.config(state=DISABLED)
+        self.__checa_tamanho()
 
-    def deletar_arquivo(self):
+    def __deletar_arquivo(self):
+        """
+        Esse método irá remover da lista o elemento que está selecionado.
+        :return: None
+        """
         self.pdf_list.delete(ANCHOR)
-        self.__alter_state(0)
+        self.del_arquivo.config(state=DISABLED)
+        self.__checa_tamanho()
+
+    def __concatenar(self):
+        files = [file for file in self.pdf_list.get(0, END)]
+        AskForNewName(files=files, old_object=self)
+
+
+class AskForNewName:
+
+    window_title = {'text': 'Insira um nome para o novo arquivo', 'font': ('Helvetica', 18), 'bg': '#624CAB',
+                    'fg': '#eeeeee'}
+    entry_box = {'width': 50, 'font': ('Helvetica', 14)}
+    ok_button = {'text': 'Ok', 'width': 20, 'bg': '#29274C', 'fg': '#eeeeee', 'relief': 'flat',
+                 'font': ('Helvetica', 12), 'padx': 5, 'pady': 5, 'borderwidth': 2, 'activebackground': '#7189FF'}
+    concat_dir = r'C:\outputs\arquivos-concatenados'
+
+    def __init__(self, files, old_object):
+        # Criando a janela para receber o novo nome
+        self.new_name_window = Toplevel()
+
+        # Aplicando configurações à janela
+        self.new_name_window.title("PDF file manager by Firmino Neto")
+        self.new_name_window.iconbitmap(r".\icon.ico")
+        self.new_name_window.configure(background='#624CAB')
+        self.new_name_window.resizable(False, False)
+        centralizar_janela(width=600, height=250, element=self.new_name_window)
+
+        # Lista dos arquivos pdf's selecionados e instância da primeira janela
+        self.files = files
+        self.old_object = old_object
+
+        # Widgets da nova janela
+        self.title = Label(self.new_name_window, **self.window_title)
+        self.name = Entry(self.new_name_window, **self.entry_box)
+        self.ok = Button(self.new_name_window, **self.ok_button, command=self.concatenate)
+
+        # Inserindo os widgets na nova janela
+        self.title.pack(pady=30)
+        self.name.pack(pady=15)
+        self.ok.pack(pady=15)
+
+        # Vinculando a função callback para animação hover
+        self.ok.bind('<Enter>', self.__hover_in)
+        self.ok.bind('<Leave>', self.__hover_out)
+
+    def __hover_in(self, _event):
+        self.ok.config(bg='#758ECD')
+
+    def __hover_out(self, _event):
+        self.ok.config(bg='#29274C')
+
+    def concatenate(self):
+        name = self.name.get()
+        if len(name) == 0:
+            messagebox.showinfo(
+                title="Nome inválido",
+                message="O nome não pode estar em branco."
+            )
+            self.new_name_window.destroy()
+        elif name + '.pdf' in listdir(self.concat_dir):
+            messagebox.showinfo(
+                title="Nome inválido",
+                message="O novo nome para o arquivo já existe."
+            )
+            self.new_name_window.destroy()
+        else:
+            try:
+                name = name + '.pdf'
+                Merger.merge(files=self.files, new_name=name)
+            except Exception as error:
+                messagebox.showerror(
+                    title="Erro na operação",
+                    message=f"Houve um erro no momento da concatenação. Mais detalhes:\n{error}"
+                )
+            else:
+                messagebox.showinfo(
+                    title="Arquivos concatenados",
+                    message=f"Os arquivos foram concatenados com sucesso. O novo arquivo se encontra disponível "
+                            f"em:\n{self.concat_dir}"
+                )
+            finally:
+                # Limpando a lista dos arquivos pdf's e resetando o estado do botão
+                self.old_object.pdf_list.delete(0, END)
+                self.old_object.concatenar.config(state=DISABLED)
+
+                # Excluindo a nova janela de nome
+                self.new_name_window.destroy()

@@ -21,7 +21,7 @@ def main():
         janela_raiz.iconbitmap(r".\icon.ico")
         janela_raiz.configure(background='#624CAB')
         janela_raiz.resizable(False, False)
-        centralizar_janela(width=1000, height=500, element=janela_raiz)
+        centralizar_janela(width=1100, height=500, element=janela_raiz)
 
         # Verificando os diretórios
         verifica_dirs()
