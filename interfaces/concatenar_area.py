@@ -4,6 +4,7 @@ from functions.geometria_centralizada import centralizar_janela
 from tkinter import messagebox
 from engine.concat import Merger
 from os import listdir
+import webbrowser
 
 
 class ConcatenarGui:
@@ -174,36 +175,44 @@ class AskForNewName:
     def concatenate(self):
         name = self.name.get()
         if len(name) == 0:
+            self.new_name_window.destroy()
             messagebox.showinfo(
                 title="Nome inválido",
                 message="O nome não pode estar em branco."
             )
-            self.new_name_window.destroy()
         elif name + '.pdf' in listdir(self.concat_dir):
+            self.new_name_window.destroy()
             messagebox.showinfo(
                 title="Nome inválido",
                 message="O novo nome para o arquivo já existe."
             )
-            self.new_name_window.destroy()
         else:
             try:
                 name = name + '.pdf'
                 Merger.merge(files=self.files, new_name=name)
             except Exception as error:
+                # Excluindo a nova janela de nome
+                self.new_name_window.destroy()
+
+                # Mostrando uma menssagem de erro após a exceção ser lançada
                 messagebox.showerror(
                     title="Erro na operação",
                     message=f"Houve um erro no momento da concatenação. Mais detalhes:\n{error}"
                 )
             else:
+                # Excluindo a nova janela de nome
+                self.new_name_window.destroy()
+
+                # Mostrando uma menssagem de sucesso após a concatenação
                 messagebox.showinfo(
                     title="Arquivos concatenados",
                     message=f"Os arquivos foram concatenados com sucesso. O novo arquivo se encontra disponível "
                             f"em:\n{self.concat_dir}"
                 )
+
+                # Abrindo o diretório dos arquivos concatenados
+                webbrowser.open(self.concat_dir)
             finally:
                 # Limpando a lista dos arquivos pdf's e resetando o estado do botão
                 self.old_object.pdf_list.delete(0, END)
                 self.old_object.concatenar.config(state=DISABLED)
-
-                # Excluindo a nova janela de nome
-                self.new_name_window.destroy()
