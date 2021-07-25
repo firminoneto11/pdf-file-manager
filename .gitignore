@@ -4,4 +4,10 @@ __pycache__
 
 .vscode
 
-pdf-file-manager - 1.0.exe
+versions
+
+build
+
+dist
+
+pdf-file-manager.spec
