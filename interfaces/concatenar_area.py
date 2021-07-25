@@ -153,7 +153,10 @@ class AskForNewName:
         # Lista dos arquivos pdf's selecionados e criação de um atributo de instância que refere à antiga janela
         self.files = files
         self.old_object = old_object
-        self.old_object.pdf_list.selection_clear(self.old_object.pdf_list.curselection())
+        try:
+            self.old_object.pdf_list.selection_clear(self.old_object.pdf_list.curselection())
+        except Exception:
+            self.old_object.pdf_list.selection_clear(ANCHOR)
         self.old_object.del_arquivo.config(state=DISABLED)
 
         # Widgets da nova janela
