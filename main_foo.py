@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 from time import sleep
-from functions.geometria_centralizada import centralizar_janela
+from functions.geometria_centralizada import TkinterNew
 from functions.verificar_diretorios import verifica_dirs
 from interfaces.main_menu_gui import MenuInicial
 
@@ -14,14 +14,14 @@ def main():
     """
     try:
         # Criando a janela principal
-        janela_raiz = Tk()
+        janela_raiz = TkinterNew()
 
         # Aplicando configurações a janela
         janela_raiz.title("PDF file manager by Firmino Neto")
         janela_raiz.iconbitmap(r".\icon.ico")
         janela_raiz.configure(background='#624CAB')
         janela_raiz.resizable(False, False)
-        centralizar_janela(width=1100, height=500, element=janela_raiz)
+        janela_raiz.center(width=1100, height=500)
 
         # Verificando os diretórios
         verifica_dirs()
@@ -52,7 +52,7 @@ def main():
             progress_bar['value'] = progress_bar['value'] + 1
             status_do_carregamento.config(text=f"{progress_bar['value']}%")
             progress_bar.update()
-            sleep(0.020)
+            sleep(0.010)
 
         # Após a execução da função que realiza o carregamento da barra de progresso, os widgets são removidos e o menu
         # inicial é apresentado

@@ -23,7 +23,8 @@ class MenuInicial:
                                  font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF',
                                  command=self.__concatenar)
         self.separar = Button(root, text='Separar', width=20, bg='#29274C', fg='#eeeeee', relief='flat',
-                              font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF')
+                              font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF',
+                              state=DISABLED)
 
         self.sair = Button(root, text='Sair', width=20, bg='#29274C', fg='#eeeeee', relief='flat',
                            font=('Helvetica', 12), padx=5, pady=5, borderwidth=2, activebackground='#7189FF',
@@ -39,8 +40,8 @@ class MenuInicial:
         # Criando os efeitos hovers dos botões
         self.concatenar.bind('<Enter>', self.__1_hover_in)
         self.concatenar.bind('<Leave>', self.__1_hover_out)
-        self.separar.bind('<Enter>', self.__2_hover_in)
-        self.separar.bind('<Leave>', self.__2_hover_out)
+        # self.separar.bind('<Enter>', self.__2_hover_in)
+        # self.separar.bind('<Leave>', self.__2_hover_out)
         self.sair.bind('<Enter>', self.__3_hover_in)
         self.sair.bind('<Leave>', self.__3_hover_out)
 

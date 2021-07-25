@@ -1,7 +1,6 @@
 from tkinter import *
-from tkinter import filedialog
-from functions.geometria_centralizada import centralizar_janela
-from tkinter import messagebox
+from tkinter import ttk, filedialog, messagebox
+from functions.geometria_centralizada import TopLevelNew
 from engine.concat import Merger
 from os import listdir
 import webbrowser
@@ -13,9 +12,10 @@ class ConcatenarGui:
     """
     # Atributos das labels e da listbox
     conteudo_status_do_sys = {'text': 'Concatenação', 'font': ('Helvetica', 18), 'bg': '#624CAB', 'fg': '#eeeeee'}
-    conteudo_pdf_list = {'bg': '#758ECD', 'width': 125, 'fg': '#eeeeee', 'relief': RIDGE, 'borderwidth': 3,
-                         'font': ('Helvetica', 14)}
-    conteudo_label_da_dica = {'text': 'Insira arquivos no formato PDF na lista abaixo para realizar a concatenação.',
+    conteudo_pdf_list = {'bg': '#758ECD', 'width': 125, 'fg': '#eeeeee', 'relief': FLAT, 'borderwidth': 3,
+                         'font': ('Helvetica', 10)}
+    conteudo_label_da_dica = {'text': 'Insira arquivos no formato PDF na lista abaixo para realizar a concatenação.\n'
+                                      'Eles serão agrupados na ordem em que forem inseridos.',
                               'font': ('Helvetica', 14), 'bg': '#624CAB', 'fg': '#eeeeee'}
 
     # Atributos dos botões
@@ -119,7 +119,7 @@ class ConcatenarGui:
         Esse método irá remover da lista o elemento que está selecionado.
         :return: None
         """
-        self.pdf_list.delete(ANCHOR)
+        self.pdf_list.delete(self.pdf_list.curselection())
         self.del_arquivo.config(state=DISABLED)
         self.__checa_tamanho()
 
@@ -138,24 +138,31 @@ class AskForNewName:
     concat_dir = r'C:\outputs\arquivos-concatenados'
 
     def __init__(self, files, old_object):
+
         # Criando a janela para receber o novo nome
-        self.new_name_window = Toplevel()
+        self.new_name_window = TopLevelNew()
 
         # Aplicando configurações à janela
         self.new_name_window.title("PDF file manager by Firmino Neto")
         self.new_name_window.iconbitmap(r".\icon.ico")
         self.new_name_window.configure(background='#624CAB')
         self.new_name_window.resizable(False, False)
-        centralizar_janela(width=600, height=250, element=self.new_name_window)
+        self.new_name_window.center(width=600, height=250)
+        self.new_name_window.grab_set()
 
-        # Lista dos arquivos pdf's selecionados e instância da primeira janela
+        # Lista dos arquivos pdf's selecionados e criação de um atributo de instância que refere à antiga janela
         self.files = files
         self.old_object = old_object
+        self.old_object.pdf_list.selection_clear(self.old_object.pdf_list.curselection())
+        self.old_object.del_arquivo.config(state=DISABLED)
 
         # Widgets da nova janela
         self.title = Label(self.new_name_window, **self.window_title)
-        self.name = Entry(self.new_name_window, **self.entry_box)
+        self.name = ttk.Entry(self.new_name_window, **self.entry_box)
         self.ok = Button(self.new_name_window, **self.ok_button, command=self.concatenate)
+
+        # Captando o 'focus' para o Entry Widget
+        self.name.focus_set()
 
         # Inserindo os widgets na nova janela
         self.title.pack(pady=30)
@@ -166,13 +173,17 @@ class AskForNewName:
         self.ok.bind('<Enter>', self.__hover_in)
         self.ok.bind('<Leave>', self.__hover_out)
 
+        # Vinculando a função callback para o botão 'enter'
+        self.new_name_window.bind('<Return>', self.concatenate)
+
     def __hover_in(self, _event):
         self.ok.config(bg='#758ECD')
 
     def __hover_out(self, _event):
         self.ok.config(bg='#29274C')
 
-    def concatenate(self):
+    def concatenate(self, _event=None):
+        self.old_object.del_arquivo.config(state=DISABLED)
         name = self.name.get()
         if len(name) == 0:
             self.new_name_window.destroy()
@@ -200,6 +211,10 @@ class AskForNewName:
                     message=f"Houve um erro no momento da concatenação. Mais detalhes:\n{error}"
                 )
             else:
+                # Limpando a lista dos arquivos pdf's e alterando o estado do botão
+                self.old_object.pdf_list.delete(0, END)
+                self.old_object.concatenar.config(state=DISABLED)
+
                 # Excluindo a nova janela de nome
                 self.new_name_window.destroy()
 
@@ -213,6 +228,5 @@ class AskForNewName:
                 # Abrindo o diretório dos arquivos concatenados
                 webbrowser.open(self.concat_dir)
             finally:
-                # Limpando a lista dos arquivos pdf's e resetando o estado do botão
-                self.old_object.pdf_list.delete(0, END)
-                self.old_object.concatenar.config(state=DISABLED)
+                # Liberando a antiga janela para ser clicada
+                self.new_name_window.grab_release()
