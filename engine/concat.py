@@ -34,5 +34,4 @@ class Merger:
         :param file_string: String antiga representando o caminho até o arquivo.
         :return: Nova string contendo o path ajustado para windows.
         """
-        path = file_string.split('/')
-        return '\\'.join(path)
+        return '\\'.join(file_string.split('/'))
