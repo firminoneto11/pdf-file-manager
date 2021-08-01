@@ -132,25 +132,42 @@ class SepararGui:
         self.menu_inicial.__init__(root=self.root)
 
     def __select_file(self):
+        """
+        Esse método irá solicitar ao usuário um arquivo no formato PDF e fazer uma pequena verificação antes de colocá-lo como arqui
+        vo para separação.
+        """
+        # Solicitando ao usuário um arquivo no formato PDF
         pdf_file = filedialog.askopenfilename(
             initialdir="C:\\",
             title="Escolha um arquivo PDF",
             filetypes=(('Arquivos PDF', '.pdf'),)
         )
-        self.file.config(state=ACTIVE)
-        self.file.delete(0, END)
-        self.file.insert(0, pdf_file)
-        self.file.config(state='readonly')
-        self.separate.config(state=NORMAL)
+
+        # Verificando se o arquivo selecionado não foi uma string vazia. (Ocorre quando o usuário aperta cancelar)
+        if pdf_file != "":
+            self.file.config(state=ACTIVE)
+            self.file.delete(0, END)
+            self.file.insert(0, pdf_file)
+            self.file.config(state='readonly')
+            self.separate.config(state=NORMAL)
 
     def __split(self):
+        """
+        Esse método é responsável por executar o método split() da classe Splitter e tratar os erros caso venham a acontecer no
+        momento da separação do arquivo página à página.
+        """
+        # Selecionando o nome do arquivo
         file = self.file.get()
+
+        # Perguntando ao usuário se ele deseja continuar
         response = messagebox.askyesno(
             title="Atenção",
             message=f"Antes de continuar com a separação em páginas do arquivo escolhido, certifique-se que a seguinte "
                     f"pasta esteja sem arquivos:\n{self.splitter_dir}\nCaso haja algum arquivo, eles serão removidos "
                     f"permanentemente. Deseja continuar?"
         )
+
+        # Executando a separação se a resposta for sim
         if response:
             try:
                 Splitter.split(file)
